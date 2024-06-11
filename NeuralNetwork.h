@@ -3,7 +3,7 @@
 //  1) Nodes: These are simply vectors. You need One input vector, one output vector, and then another N vectors (one for each layer)
 //  2) Weight Matrices: Matrices, you need N+1 weight matrices (N, one for each layer + 1 for output)
 
-class NeuralNetork{
+class NeuralNetwork{
     public:
         // int rows;
         // int columns;
@@ -20,6 +20,13 @@ class NeuralNetork{
 
         Matrix ** weights;
         Matrix ** biases;
+        Matrix ** node_layer;
+        int * layer_size_array;
+        int number_of_layers;
+
+        int input_NN(Matrix);
+        NeuralNetwork(int, int, int, int *, Matrix *, Matrix *, Matrix **, Matrix **, Matrix **
+        );
 
         
     protected:

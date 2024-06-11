@@ -14,3 +14,37 @@
 #include "NeuralNetwork.h"
 #include "Matrix.h"
 
+//TODO:
+// = assignment operator
+//fix the stupid pointer stuff with the matrices. No reason to return a pointer. Just use the pointer to edit
+//make a node reset function
+
+
+//Part 1: Neural Network Functions for Determining Most likely
+        // Matrix ** weights;
+        // Matrix ** biases;
+        // int * layer_size_array;
+        // int number_of_layers;
+        //Matrix ** node_layer;
+int NeuralNetwork::input_NN(Matrix input){
+
+    //Part 1: Reset the Node Values and Input the new Value
+
+    //Part 2: Generate Output from the input
+    for(int i = 1; i<(this->number_of_layers); i++){
+        //Next Node layer = ReLu(weight_matrix[i]*node_layer[i-1]-bias[i]);
+        *((this->node_layer)[i]) = ReLu(*((this->weights)[i-1])*(*(this->node_layer)[i-1] - *((this->biases)[i])));
+    }
+    
+    //Return the Networks Choice
+    for(int i = 0; i<num_outputs; i++){
+
+    }
+}
+
+NeuralNetwork( int num_inputs, int number_of_layers, int num_outputs, int * layer_size_array,
+               Matrix * outputs, Matrix * inputs, Matrix ** weights, Matrix ** biases, Matrix ** node_layer
+){
+
+}
+

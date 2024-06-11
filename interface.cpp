@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Matrix.h"
+#include "NeuralNetwork.h"
 
 using namespace std;
 
@@ -18,19 +19,20 @@ int main(){
     //                  7,8,10,11,12,
     //                  9,10,12,0,11
     //                  };
-    float arr[25] = {1,3,0,2,-9,
-                     1,3,0,2,-9,
-                     1,3,0,2,-9,
-                     1,3,0,2,-9,
-                     1,3,0,2,-9
-                     };
-    Matrix *s = new Matrix(arr,5,5);
-    Matrix *m = 20*(*s);
+    // float arr[25] = {1,3,0,2,-9,
+    //                  1,3,0,2,-9,
+    //                  1,3,0,2,-9,
+    //                  1,3,0,2,-9,
+    //                  1,3,0,2,-9
+    //                  };
 
-    s->print();
-    m->print();
-    m = (*m)*0.05;
-    m->print();
-    s->deleteMatrix();
-    delete s;
+    // Matrix *s = new Matrix(arr,5,5);
+    // Matrix *m = 20*(*s);
+
+    // s->print();
+    // m->print();
+    // m = (*m)*0.05;
+    // m->print();
+    // s->deleteMatrix();
+    // delete s;
 }
