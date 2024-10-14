@@ -1,15 +1,35 @@
 #include "Matrix.h"
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
-//using namespace std;
+//------------
+//Constructors
+//------------
+Matrix::Matrix()
+    : rows(0), columns(0), beginning_of_matrix_data_pointer(nullptr), index_pointer(nullptr){}
 
-Matrix::Matrix(int rows, int columns){
-    this->beginning_of_matrix_data_pointer = new float[rows*columns];
-    this->index_pointer = beginning_of_matrix_data_pointer;
-    this->rows = rows;
-    this->columns = columns;
+Matrix::Matrix(int rows, int columns)
+    : rows(rows), columns(columns), beginning_of_matrix_data_pointer(new float[rows * columns]), index_pointer(nullptr){}
+//------------
+
+
+
+//-----------
+//Destructors
+//-----------
+Matrix::~Matrix(){
+    delete[] beginning_of_matrix_data_pointer;
 }
+//-----------
 
+
+
+//----------------
+//Member Functions
+//----------------
+
+//Set function
 int Matrix::set(int r, int c, float val){
     if(r>=rows || c>=columns){
         return 0;
@@ -20,58 +40,70 @@ int Matrix::set(int r, int c, float val){
     }
 }
 
+//Get function
 float Matrix::get(int r, int c) const{
     return (*(beginning_of_matrix_data_pointer+r*columns+c));
 }
 
-void Matrix::print(){
-    index_pointer = beginning_of_matrix_data_pointer;
+// Copy Constructor
+Matrix::Matrix(const Matrix& a)
+    : rows(a.rows), columns(a.columns)
+{
+    // Allocate memory for the matrix data
+    this->beginning_of_matrix_data_pointer = new float[rows * columns];
+    this->index_pointer = beginning_of_matrix_data_pointer;
+
+    // Copy the data from the other matrix
+    memcpy(this->beginning_of_matrix_data_pointer, a.beginning_of_matrix_data_pointer,(rows*columns)*sizeof(float));
+}
+
+// Assignment Operator
+void Matrix::operator=(const Matrix& a)
+{
+    //TODO: Make it so that you can only do this if Matrix dimensions agree??
+    if (this != &a) // Avoid self-assignment
+    {
+        // Deallocate existing memory
+        delete[] this->beginning_of_matrix_data_pointer;
+
+        // Copy the dimensions
+        this->rows = a.rows;
+        this->columns = a.columns;
+
+        // Allocate memory for the matrix data
+        this->beginning_of_matrix_data_pointer = new float[rows * columns];
+
+        // Copy the data from the other matrix
+        memcpy(this->beginning_of_matrix_data_pointer, a.beginning_of_matrix_data_pointer,(rows*columns)*sizeof(float));
+    }
+    return;
+}
+
+//initialize random
+void Matrix::initialize_random(){
+    srand(time(0));
     for(int i = 0; i<rows; i++){
-        for(int j = 0; j<columns; j++){
-            if(*index_pointer == -0){
-                *index_pointer = 0;
+            for(int j = 0; j<columns; j++){
+                set(i, j, float(rand()%101)/100);
             }
-            std::cout<<"["<<*index_pointer<<"]";
-            ++index_pointer;
-        }
-        std::cout<<"\n";
-    }
-    std::cout<<"\n";
+    }   
 }
 
-
-void Matrix::setOnes(){
+//Initialize zero
+void Matrix::initialize_zero(){
     for(int i = 0; i<rows; i++){
-        for(int j = 0; j<columns; j++){
-            this->Matrix::set(i,j,1);
-        }
-    }    
+            for(int j = 0; j<columns; j++){
+                set(i, j, 0);
+            }
+    }       
 }
+//----------------
 
-void Matrix::setZeros(){
-    for(int i = 0; i<rows; i++){
-        for(int j = 0; j<columns; j++){
-            this->Matrix::set(i,j,0);
-        }
-    }    
-}
 
-void Matrix::scaleRow(int row_index, float scalar){
-    for(int i = 0; i<columns; i++){
-        this->set(row_index,i,scalar*(this->get(row_index,i)));
-    }
-}
 
-void Matrix::addRows(int row_index,float scalar, int result_row_index){
-    for(int i = 0; i<columns; i++){
-        this->set(result_row_index,i,this->get(result_row_index,i)+scalar*(this->get(row_index,i)));
-    }
-}
-
-Matrix Matrix::operator=(const Matrix &a){
-    return a;
-}
-
+//----------------
+//Friend Functions
+//----------------
 Matrix operator+(const Matrix &a,const Matrix &b){
     if((a.rows == b.rows) && (a.columns == b.columns)){
         Matrix m(a.rows, a.columns);
@@ -127,39 +159,77 @@ Matrix operator*(const Matrix &a,const Matrix &b){
     }
 }
 
-Matrix operator*(const Matrix &a,float b){
-        Matrix m(a.rows, a.columns);
-        for(int i = 0; i<a.rows; i++){
-            for(int j = 0; j<a.columns; j++){
-                m.set(i,j, a.get(i,j)*b);
-            }
-        }
-        return m;
-}
-
-Matrix operator*(float b,const Matrix &a){
-    return a*b;
-}
-
-Matrix ReLu(Matrix &a){
+Matrix operator*(const Matrix &a, int b){
     Matrix m(a.rows, a.columns);
     for(int i = 0; i<a.rows; i++){
         for(int j = 0; j<a.columns; j++){
-            if(a.get(i,j)<0){
-                m.set(i,j, 0);
+             m.set(i,j, a.get(i,j)*b);
+        }
+    }
+    return m;
+}
+
+Matrix operator*(int a, const Matrix &b){
+    Matrix m(b.rows, b.columns);
+    for(int i = 0; i<b.rows; i++){
+        for(int j = 0; j<b.columns; j++){
+             m.set(i,j, b.get(i,j)*a);
+        }
+    }
+    return m;
+}
+
+Matrix operator%(const Matrix &a,const Matrix &b){
+    if(a.rows != b.rows && a.columns != b.columns){
+        std::cout<<"Error: matrix dimensions do not agree for the ";
+        exit(1);
+    }
+    Matrix m(a.rows*b.rows, a.columns*b.columns);
+    for(int i = 0; i<a.rows; i++){
+        for(int j = 0; j<b.columns; j++){
+            m.set(i, j, a.get(i, j)*b.get(i, j));
+        }
+    }
+    return m;
+}
+
+Matrix transpose(const Matrix& a) {
+    Matrix m(a.columns, a.rows);
+    for (int i = 0; i < a.rows; i++) {
+        for (int j = 0; j < a.columns; j++) {
+            m.set(j, i, a.get(i,j));
+        }
+    }
+    return m;
+}
+
+Matrix ReLu(const Matrix& a) {
+    Matrix m(a.rows, a.columns);
+    for (int i = 0; i < a.rows; i++) {
+        for (int j = 0; j < a.columns; j++) {
+            float value = a.get(i, j);
+            if (value < 0) {
+                m.set(i, j, 0);
+            } else {
+                m.set(i, j, value);
             }
         }
     }
     return m;
 }
 
-// a x n * n x b
-//for a rows 
-//  for b columns
-//the a,b** position = row(1-a)*column(1 to b)
-
-//add greater than or equal I/O function which has inputs as threshhold voltage and then outputs binary matrix of the same size
-
-void Matrix::deleteMatrix(){
-    delete []this->beginning_of_matrix_data_pointer;
+Matrix step(const Matrix& a){
+    Matrix m(a.rows, a.columns);
+    for (int i = 0; i < a.rows; i++) {
+        for (int j = 0; j < a.columns; j++) {
+            float value = a.get(i, j);
+            if (value < 0) {
+                m.set(i, j, 0);
+            } else {
+                m.set(i, j, 1);
+            }
+        }
+    }
+    return m;
 }
+//----------------

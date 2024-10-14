@@ -1,38 +1,60 @@
+#include "interface.h"
 #include <iostream>
-#include "Matrix.h"
-#include "NeuralNetwork.h"
+#include <fstream>
+#include <sstream>
+#include <string>
 
 using namespace std;
 
+NeuralNetwork* getNeuralNetworkParameters(){
 
-int main(){
-    cout<<"------------------------------------------------------\n";
-    cout<<"Welcome to the Matrix Program by Bradley Franks V0.0.0\n";
-    cout<<"------------------------------------------------------\n";
+    ifstream inputFile; //file reader object
+    inputFile.open("./NeuralNetworkParameters.csv"); //open file that contains Network Parameters TODO: make this adjustable
+
+    string line = "";
+
+    string tempString;
+    int num_inputs, num_hidden_layers, num_outputs;
+
+    getline(inputFile,line); //ignore first line
+    getline(inputFile,line); //ignore second line
+    //Parsing 3rd Line
+    getline(inputFile,line); //First set of actual data is on second line in the form: <number of hidden layers>, <number of outputs>
+
+    stringstream inputString(line); //For parsing csv
+
+    getline(inputString, tempString, ','); //get number of inputs
+    num_inputs = stoi(tempString);
+    getline(inputString, tempString, ','); //get number of hidden layers
+    num_hidden_layers = stoi(tempString);
+    getline(inputString, tempString, ','); //get number of inputs
+    num_outputs = stoi(tempString);
+
+    getline(inputFile,line); //ignore 4th Line
+
     
-    //float arr[9] = {1,3,4,
-    //                1,2,-1,
-    //                0,0,0};
-    // float arr[25] = {1,2,3,4,5,
-    //                  3,4,6,7,8,
-    //                  5,6,7,8,9,
-    //                  7,8,10,11,12,
-    //                  9,10,12,0,11
-    //                  };
-    // float arr[25] = {1,3,0,2,-9,
-    //                  1,3,0,2,-9,
-    //                  1,3,0,2,-9,
-    //                  1,3,0,2,-9,
-    //                  1,3,0,2,-9
-    //                  };
 
-    // Matrix *s = new Matrix(arr,5,5);
-    // Matrix *m = 20*(*s);
+    //Parsing 5th line and putting all the I/O quantities in their respective array slots
+    line = "";
+    getline(inputFile,line);
+    stringstream inputString2(line);
 
-    // s->print();
-    // m->print();
-    // m = (*m)*0.05;
-    // m->print();
-    // s->deleteMatrix();
-    // delete s;
+    int * hidden_layer_sizes = new int[num_hidden_layers];
+
+    for(int i = 0; i<num_hidden_layers; i++){
+        getline(inputString2, tempString, ','); //get a hidden layer size
+        hidden_layer_sizes[i] = stoi(tempString);
+    }
+
+    // Construct NeuralNetwork object
+    NeuralNetwork* nn = new NeuralNetwork(num_inputs, num_hidden_layers, num_outputs, hidden_layer_sizes);
+
+    // Clean up dynamic memory
+    delete[] hidden_layer_sizes;
+
+    // Close file
+    inputFile.close();
+
+    // Return pointer to NeuralNetwork object
+    return nn;
 }

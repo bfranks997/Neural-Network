@@ -7,31 +7,31 @@ class Matrix{
         float * beginning_of_matrix_data_pointer;
         float * index_pointer;
 
-        Matrix(int rows, int columns);
+        //Constructors
+        Matrix();
+        Matrix(int, int);
+        Matrix(const Matrix &); //copy constructor
+
+        //Destructors
+        ~Matrix();
+
+        //Member Functions
         int set(int r, int c, float val);
         float get(int r, int c) const;
-        void print();
-        void setOnes();
-        void setZeros();
-        void scaleRow(int,float);
-        void swapRows(int,int);
-        void addRows(int,float,int);
-        //Matrix operator=(Matrix);
-        Matrix operator=(const Matrix &);
-        friend Matrix operator+(const Matrix &,const Matrix &);
-        friend Matrix operator-(const Matrix &,const Matrix &);
-        friend Matrix operator*(const Matrix &,const Matrix &);
-        friend Matrix operator*(const Matrix &,float);
-        friend Matrix operator*(float,const Matrix &);
-        friend Matrix ReLu(const Matrix &);
-        //friend Matrix* operator^(Matrix,int); this is for exponent but not really sure how to do this
-        void deleteMatrix();
-    protected:
+        void operator=(const Matrix &); 
+        void initialize_random();
+        void initialize_zero();
 
+        //Friend Functions
+        friend Matrix operator+(const Matrix &,const Matrix &); //matrix-matrix addition
+        friend Matrix operator-(const Matrix &,const Matrix &); //matrix-matrix subtraction
+        friend Matrix operator*(const Matrix &,const Matrix &); //matrix-matrix multiplication
+        friend Matrix operator*(const Matrix &, int); //scalar-matrix multiplication
+        friend Matrix operator*(int, const Matrix &); //scalar-matrix multiplication
+        friend Matrix operator%(const Matrix &,const Matrix &); //Kronecker Product
+        friend Matrix transpose(const Matrix &);
+        friend Matrix ReLu(const Matrix &); //matrix relu
+        friend Matrix step(const Matrix &); //matrix unit step function
+
+        //TODO: Add a Delete Function
 };
-
-//Major Concepts To do:
-    //inverse
-    //eigenvalues
-    //determinant
-    //transpose
