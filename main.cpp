@@ -20,12 +20,13 @@ int main(){
 
     myNN.print();
     int choice = 0;
-    while(choice == 0 || choice == 1 || choice == 2 || choice == 3){
+    while(choice == 0 || choice == 1 || choice == 2 || choice == 3 || choice == 4){
         cout<<"Choose what you want to do\n";
         cout<<"0 - Set values to 0\n";
         cout<<"1 - Set values to random\n";
         cout<<"2 - Manually Input value\n";
         cout<<"3 - Set values from file\n";
+        cout<<"4 - Save values to a file\n";
         cout<<"Enter anything else to exit\n";
         cin>>choice;
         if(choice == 0){
@@ -42,6 +43,9 @@ int main(){
         }
         else if(choice == 3){
             myNN.initialize_from_file();
+        }
+        else if(choice == 4){
+            myNN.save_to_file();
         }
         myNN.print();
     }

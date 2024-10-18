@@ -10,14 +10,14 @@
 
 //TODO (new)
 //1) Verify algorithm is correct
-//2) Create random initialization for neural network
-//3) Verify the nounds in for loops are correct
+//3) Verify the bounds in for loops are correct
 //4) Figure out if the dynamic allocation of memory is correct
 //5) Do a simple train and test with the simplest network possible
 //6) LEARN TO DEBUG SO YOU CAN FIX THE HIDDEN LAYER SIZES CHANGING
 //7) See if num_outputs is the samne as the number of nodes in the last layer aka outpouts = last node layer
 //8) Make it so that the NNparameters CSV has to be filled out correctly else itll throw some kind of error
 //9) Fix the inpout NN function
+//10) Add a function to save NN to a file
 
 #include "NeuralNetwork.h"
 #include "Matrix.h"
@@ -182,51 +182,51 @@ void NeuralNetwork::initialize_from_file(){
     inputFile.close();
 }
 
+
+//Save the current NN parameters to a csv file (I should probably make a better format for the csv files)
 void NeuralNetwork::save_to_file(){
     ofstream outputFile; //file reader object
-    outputFile.open("./NeuralNetworkParameters.csv"); //open file that contains Network Parameters TODO: make this adjustable
-    string line = "";
-    string tempString;
-    getline(inputFile,line); //ignore first line
-    getline(inputFile,line); //ignore second line
-    getline(inputFile,line); //ignore third line
-    getline(inputFile,line); //ignore fourth line
-    getline(inputFile,line); //ignore fifth line
-    getline(inputFile,line); //ignore sixth line
+    outputFile.open("./abc.csv"); //open file that contains Network Parameters TODO: make this adjustable
+    if (outputFile.is_open()) { // Check if the file opened successfully
+        //Write initial text
+        outputFile << "Do NOT remove this line. Make sure to only use integers and to separate numbers using commas. Enter information on lines 3 and 5.\n";
+        outputFile << "On line below: <number of inputs>, <number of hidden layers>, <number of outputs>\n";
 
-    float weight = 0;
-    //Parse the lines (1 line per hidden layer +1)
-    for(int i = 0; i<num_hidden_layers+1; i++){
-        line = "";
-        getline(inputFile,line); //First set of actual data is on seventh line in the form: <number of hidden layers>, <number of outputs>
-        stringstream inputString(line); //For parsing csv
-        for(int j = 0; j<weights[i].rows; j++){
-            for(int k = 0; k<weights[i].columns; k++){
-                getline(inputString, tempString, ',');
-                weight = stof(tempString);
-                weights[i].set(j,k,weight);
+        //Write the <number of inputs>, <number of hidden layers>, <number of outputs>
+        outputFile << num_inputs<<","<<num_hidden_layers<<","<<num_outputs<<"\n";
+
+        //Write explainer text
+        outputFile << "On line below: <number of nodes in the first hidden layer>, ... <number of nodes in the nth hidden layer>\n";
+        for(int i = 0; i<num_hidden_layers;i++){
+            outputFile<<hidden_layer_sizes[i]<<",";
+        }
+        outputFile << "\n";
+
+        //Write more explainer text
+        outputFile << "On the lines below enter the values of the weights. Just enter the values in row by one so r1,r1...r2,r2,...rn,rn... for a weight matrix. Each weight matrix has one line\n";
+        //Write the weight values
+        for(int i = 0; i<num_hidden_layers+1; i++){
+            for(int j = 0; j<weights[i].rows; j++){
+                for(int k = 0; k<weights[i].columns; k++){
+                    outputFile << weights[i].get(j,k)<<",";
+                }
             }
+            outputFile<<"\n";
         }
-    }
 
-    float bias = 0;
-
-    getline(inputFile,line); //bias explainer line
-    for(int i = 0; i<num_hidden_layers+1; i++){
-        line = "";
-        getline(inputFile,line); //First set of actual data is on seventh line in the form: <number of hidden layers>, <number of outputs>
-        stringstream inputString(line); //For parsing csv
-        for(int j = 0; j<biases[i].rows; j++){
-            getline(inputString, tempString, ',');
-            bias = stof(tempString);
-            cout<<"SETTING BIAS TO: "<<bias<<", current value is "<<biases[i].get(j,1)<<"\n";
-            biases[i].set(j,0,bias);
-            cout<<"BIAS SET TO: "<<biases[i].get(j,1)<<"\n";
+        //Write more explainer text
+        outputFile << "On the lines below enter the bias values. Each new line is a new bias vectors\n";
+        for(int i = 0; i<num_hidden_layers+1; i++){
+            for(int j = 0; j<biases[i].rows; j++){
+                outputFile << biases[i].get(j,0)<<",";
+            }
+            outputFile<<"\n";
         }
+        outputFile.close(); // Close the file
+    } else {
+        cout << "Error opening file!\n";
+        exit(1);
     }
-
-
-    inputFile.close();
 }
 
 //Neural Network Functions for Determining Output
