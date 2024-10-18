@@ -97,6 +97,16 @@ void Matrix::initialize_zero(){
             }
     }       
 }
+
+//Print Matrix
+void Matrix::print(){
+    for(int i = 0; i<rows; i++){
+            for(int j = 0; j<columns; j++){
+                std::cout<<"["<<get(i,j)<<"]";
+            }
+            std::cout<<"\n";
+    }    
+}
 //----------------
 
 
@@ -116,6 +126,8 @@ Matrix operator+(const Matrix &a,const Matrix &b){
     }
     else{
         std::cout<<"Error: matrix dimensions do not work for + operation\n";
+        std::cout<<"Matrix A: "<<a.rows<<" x "<<a.columns<<"\n";
+        std::cout<<"Matrix B: "<<b.rows<<" x "<<b.columns<<"\n";
         exit(1);
     }
 }
@@ -131,7 +143,9 @@ Matrix operator-(const Matrix &a, const Matrix &b){
         return m;
     }
     else{
-        std::cout<<"Error: matrix dimensions do not work for + operation\n";
+        std::cout<<"Error: matrix dimensions do not work for - operation\n";
+        std::cout<<"Matrix A: "<<a.rows<<" x "<<a.columns<<"\n";
+        std::cout<<"Matrix B: "<<b.rows<<" x "<<b.columns<<"\n";
         exit(1);
     }
 }
@@ -155,6 +169,8 @@ Matrix operator*(const Matrix &a,const Matrix &b){
     }
     else{
         std::cout<<"Error: matrix dimensions do not work for * operation\n";
+        std::cout<<"Matrix A: "<<a.rows<<" x "<<a.columns<<"\n";
+        std::cout<<"Matrix B: "<<b.rows<<" x "<<b.columns<<"\n";
         exit(1);
     }
 }

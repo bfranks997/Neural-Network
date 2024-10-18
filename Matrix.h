@@ -21,6 +21,7 @@ class Matrix{
         void operator=(const Matrix &); 
         void initialize_random();
         void initialize_zero();
+        void print();
 
         //Friend Functions
         friend Matrix operator+(const Matrix &,const Matrix &); //matrix-matrix addition

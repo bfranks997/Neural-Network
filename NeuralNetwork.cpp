@@ -17,6 +17,7 @@
 //6) LEARN TO DEBUG SO YOU CAN FIX THE HIDDEN LAYER SIZES CHANGING
 //7) See if num_outputs is the samne as the number of nodes in the last layer aka outpouts = last node layer
 //8) Make it so that the NNparameters CSV has to be filled out correctly else itll throw some kind of error
+//9) Fix the inpout NN function
 
 #include "NeuralNetwork.h"
 #include "Matrix.h"
@@ -68,6 +69,8 @@ NeuralNetwork::NeuralNetwork()
         getline(inputString2, tempString, ','); //get a hidden layer size
         hidden_layer_sizes[i] = stoi(tempString);
     }
+
+    hidden_layer_sizes[num_hidden_layers] = num_outputs;
 
     // Close file
     inputFile.close();
@@ -128,19 +131,118 @@ void NeuralNetwork::initialize_zero(){
         node_layer[i].initialize_zero();
         weights[i].initialize_zero();
         biases[i].initialize_zero();
+        z[i].initialize_zero();
     }
 }
 
+void NeuralNetwork::initialize_from_file(){
+    ifstream inputFile; //file reader object
+    inputFile.open("./NeuralNetworkParameters.csv"); //open file that contains Network Parameters TODO: make this adjustable
+    string line = "";
+    string tempString;
+    getline(inputFile,line); //ignore first line
+    getline(inputFile,line); //ignore second line
+    getline(inputFile,line); //ignore third line
+    getline(inputFile,line); //ignore fourth line
+    getline(inputFile,line); //ignore fifth line
+    getline(inputFile,line); //ignore sixth line
+
+    float weight = 0;
+    //Parse the lines (1 line per hidden layer +1)
+    for(int i = 0; i<num_hidden_layers+1; i++){
+        line = "";
+        getline(inputFile,line); //First set of actual data is on seventh line in the form: <number of hidden layers>, <number of outputs>
+        stringstream inputString(line); //For parsing csv
+        for(int j = 0; j<weights[i].rows; j++){
+            for(int k = 0; k<weights[i].columns; k++){
+                getline(inputString, tempString, ',');
+                weight = stof(tempString);
+                weights[i].set(j,k,weight);
+            }
+        }
+    }
+
+    float bias = 0;
+
+    getline(inputFile,line); //bias explainer line
+    for(int i = 0; i<num_hidden_layers+1; i++){
+        line = "";
+        getline(inputFile,line); //First set of actual data is on seventh line in the form: <number of hidden layers>, <number of outputs>
+        stringstream inputString(line); //For parsing csv
+        for(int j = 0; j<biases[i].rows; j++){
+            getline(inputString, tempString, ',');
+            bias = stof(tempString);
+            cout<<"SETTING BIAS TO: "<<bias<<", current value is "<<biases[i].get(j,1)<<"\n";
+            biases[i].set(j,0,bias);
+            cout<<"BIAS SET TO: "<<biases[i].get(j,1)<<"\n";
+        }
+    }
+
+
+    inputFile.close();
+}
+
+void NeuralNetwork::save_to_file(){
+    ofstream outputFile; //file reader object
+    outputFile.open("./NeuralNetworkParameters.csv"); //open file that contains Network Parameters TODO: make this adjustable
+    string line = "";
+    string tempString;
+    getline(inputFile,line); //ignore first line
+    getline(inputFile,line); //ignore second line
+    getline(inputFile,line); //ignore third line
+    getline(inputFile,line); //ignore fourth line
+    getline(inputFile,line); //ignore fifth line
+    getline(inputFile,line); //ignore sixth line
+
+    float weight = 0;
+    //Parse the lines (1 line per hidden layer +1)
+    for(int i = 0; i<num_hidden_layers+1; i++){
+        line = "";
+        getline(inputFile,line); //First set of actual data is on seventh line in the form: <number of hidden layers>, <number of outputs>
+        stringstream inputString(line); //For parsing csv
+        for(int j = 0; j<weights[i].rows; j++){
+            for(int k = 0; k<weights[i].columns; k++){
+                getline(inputString, tempString, ',');
+                weight = stof(tempString);
+                weights[i].set(j,k,weight);
+            }
+        }
+    }
+
+    float bias = 0;
+
+    getline(inputFile,line); //bias explainer line
+    for(int i = 0; i<num_hidden_layers+1; i++){
+        line = "";
+        getline(inputFile,line); //First set of actual data is on seventh line in the form: <number of hidden layers>, <number of outputs>
+        stringstream inputString(line); //For parsing csv
+        for(int j = 0; j<biases[i].rows; j++){
+            getline(inputString, tempString, ',');
+            bias = stof(tempString);
+            cout<<"SETTING BIAS TO: "<<bias<<", current value is "<<biases[i].get(j,1)<<"\n";
+            biases[i].set(j,0,bias);
+            cout<<"BIAS SET TO: "<<biases[i].get(j,1)<<"\n";
+        }
+    }
+
+
+    inputFile.close();
+}
+
 //Neural Network Functions for Determining Output
-int NeuralNetwork::input_NN(Matrix input){
+int NeuralNetwork::input_NN(){
+
 
     //Part 1: Reset the Node Values and Input the new Value
-
+    inputs.print();
+    z[0] = (weights[0]*inputs) - biases[0];
+    node_layer[0] = ReLu(z[0]);
+    inputs.print();
     //Part 2: Generate Output from the input
-    for(int i = 1; i<num_hidden_layers; i++){
+    for(int i = 1; i<num_hidden_layers+1; i++){
         //Next Node layer = ReLu(weight_matrix[i]*node_layer[i-1]-bias[i]);
         //(node_layer[i]) = ReLu((((this->weights)[i-1]*(this->node_layer)[i-1]) - (this->biases)[i])); //for fast compute when already trained
-        z[i] = (weights[i-1]*node_layer[i-1]) - biases[i];
+        z[i] = (weights[i]*node_layer[i-1]) - biases[i];
         node_layer[i] = ReLu(z[i]);
     }
     
@@ -155,12 +257,27 @@ int NeuralNetwork::input_NN(Matrix input){
     return choice;
 }
 
+void NeuralNetwork::manual_input_NN(){
+    //Have the user input the manual input vector
+    float intermediate;
+    cout<<"Enter the values of the input vector: \n";
+    for(int i = 0; i<num_inputs; i++){
+        cout<<i<<","<<1<<": ";
+        cin>>intermediate;
+        cout<<"Intermediate = "<<intermediate<<"\n";
+        inputs.set(i,0,intermediate);
+    }
+    std::cout<<"Matrix Input: "<<inputs.rows<<" x "<<inputs.columns<<"\n";
+
+    input_NN();
+}
+
 
 //Train_Example
 void NeuralNetwork::train(Matrix input, Matrix output){
 
     //1) Input I/O pair
-    input_NN(input);
+    input_NN(); //fix this later
 
     //2) Compute del_L
     del_prev = new Matrix(num_outputs,1);
@@ -216,10 +333,9 @@ void NeuralNetwork::print(){
     if(num_inputs>num_outputs){
         max = num_inputs;
     }
-    for(int i = 0; i<num_hidden_layers; i++){
+    for(int i = 0; i<num_hidden_layers+1; i++){
         if(hidden_layer_sizes[i]>max){
             max = hidden_layer_sizes[i];
-            
         }
     }
 
@@ -236,6 +352,32 @@ void NeuralNetwork::print(){
     // you can loop k higher to see more color choices
     // pick the colorattribute k you want
 
+    //Printing out the biases
+    SetConsoleTextAttribute(hConsole, 13);
+    cout<<"Biases:\n";
+    for(int k = 0; k<max; k++){
+        cout<<"        ";
+
+        for(int j = 0; j<num_hidden_layers+1; j++){
+            for(int l = 0; l<weights[j].columns; l++){
+                cout<<"     ";
+                //cout<<"wwwww";
+            }
+            cout<<"   ";
+            if(k<node_layer[j].rows){
+                cout<<"{"<<biases[j].get(k,0)<<"}";
+            }
+            else{
+                cout<<"     ";
+            }
+            cout<<"   ";
+        }
+        cout<<"\n";
+    }
+    
+
+    //Printing out the weights and nodes
+    SetConsoleTextAttribute(hConsole, 15);
     for(int k = 0; k<max; k++){
         if(k<num_inputs){
             SetConsoleTextAttribute(hConsole, 12);
@@ -295,5 +437,28 @@ void NeuralNetwork::print(){
         }
         cout<<"\n";
     }
+
+    //Printing out the z values
+    SetConsoleTextAttribute(hConsole, 9);
+    for(int k = 0; k<max; k++){
+        cout<<"        ";
+        for(int j = 0; j<num_hidden_layers+1; j++){
+            for(int l = 0; l<weights[j].columns; l++){
+                cout<<"     ";
+                //cout<<"wwwww";
+            }
+            cout<<"   ";
+            if(k<node_layer[j].rows){
+                cout<<"{"<<z[j].get(k,0)<<"}";
+            }
+            else{
+                cout<<"     ";
+            }
+            cout<<"   ";
+        }
+        cout<<"\n";
+    }
+    cout<<"Z values^\n";
+    SetConsoleTextAttribute(hConsole, 15);
 }
 

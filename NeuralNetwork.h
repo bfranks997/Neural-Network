@@ -31,7 +31,10 @@ class NeuralNetwork{
         //Member Functions
         void initialize_values_random();
         void initialize_zero();
-        int input_NN(Matrix);
+        void initialize_from_file();
+        void save_to_file();
+        int input_NN();
+        void manual_input_NN();
         void train(Matrix,Matrix);
         void print();
         //NeuralNetwork& operator=(const NeuralNetwork &);
