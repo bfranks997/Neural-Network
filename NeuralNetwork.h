@@ -16,9 +16,9 @@ class NeuralNetwork{
         Matrix * biases;
         Matrix * weights;
 
-        Matrix * weight_matrix_intermediate;
-        Matrix * del_prev;
-        Matrix * del;
+        // Matrix * weight_matrix_intermediate;
+        // Matrix * del_prev;
+        // Matrix * del;
 
 
         //Constructors
@@ -33,10 +33,13 @@ class NeuralNetwork{
         void initialize_zero();
         void initialize_from_file();
         void save_to_file();
-        int input_NN();
+        int input_NN(int i);
         void manual_input_NN();
         void train(Matrix,Matrix);
+        void train_directory(int);
         void print();
+        void manually_change_learning_rate();
+        void change_learning_rate(float);
         //NeuralNetwork& operator=(const NeuralNetwork &);
 
         //Friend Functions

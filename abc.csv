@@ -1,0 +1,11 @@
+Do NOT remove this line. Make sure to only use integers and to separate numbers using commas. Enter information on lines 3 and 5.
+On line below: <number of inputs>, <number of hidden layers>, <number of outputs>
+2,1,2
+On line below: <number of nodes in the first hidden layer>, ... <number of nodes in the nth hidden layer>
+2,
+On the lines below enter the values of the weights. Just enter the values in row by one so r1,r1...r2,r2,...rn,rn... for a weight matrix. Each weight matrix has one line
+0.0119545,0.0095612,0.602589,0.464132,
+0.263028,-0.00393796,0.522209,-0.0121827,
+On the lines below enter the bias values. Each new line is a new bias vectors
+0.299189,0.310933,
+0.422071,0.348145,

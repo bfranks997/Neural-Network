@@ -21,14 +21,14 @@ class Matrix{
         void operator=(const Matrix &); 
         void initialize_random();
         void initialize_zero();
-        void print();
+        void print() const;
 
         //Friend Functions
         friend Matrix operator+(const Matrix &,const Matrix &); //matrix-matrix addition
         friend Matrix operator-(const Matrix &,const Matrix &); //matrix-matrix subtraction
         friend Matrix operator*(const Matrix &,const Matrix &); //matrix-matrix multiplication
-        friend Matrix operator*(const Matrix &, int); //scalar-matrix multiplication
-        friend Matrix operator*(int, const Matrix &); //scalar-matrix multiplication
+        friend Matrix operator*(const Matrix &, float); //scalar-matrix multiplication
+        friend Matrix operator*(float, const Matrix &); //scalar-matrix multiplication
         friend Matrix operator%(const Matrix &,const Matrix &); //Kronecker Product
         friend Matrix transpose(const Matrix &);
         friend Matrix ReLu(const Matrix &); //matrix relu

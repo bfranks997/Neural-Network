@@ -17,7 +17,8 @@
 //7) See if num_outputs is the samne as the number of nodes in the last layer aka outpouts = last node layer
 //8) Make it so that the NNparameters CSV has to be filled out correctly else itll throw some kind of error
 //9) Fix the inpout NN function
-//10) Add a function to save NN to a file
+//10) Make a training function which trains each training example in a dataset
+//11) Go through all set and gets and make sure all are 0 based and not 1 based
 
 #include "NeuralNetwork.h"
 #include "Matrix.h"
@@ -77,27 +78,27 @@ NeuralNetwork::NeuralNetwork()
 
     //-------------------------------------------------------------
     // Part 1: Initializing Inputs, outputs, weights, and biases
-    inputs = Matrix(num_inputs, 1); // Initialize input vector
 
     // Dynamically allocate memory for node_layer, z values, biases, and weights arrays
-    node_layer = new Matrix[num_hidden_layers + 1];
+    node_layer = new Matrix[num_hidden_layers + 2];
     z = new Matrix[num_hidden_layers + 1];
 
     biases = new Matrix[num_hidden_layers + 1];
     weights = new Matrix[num_hidden_layers + 1];
 
+    node_layer[0] = Matrix(num_inputs, 1); // Initialize input vector
+
     for (int i = 0; i < num_hidden_layers; i++) {
-        node_layer[i] = Matrix(hidden_layer_sizes[i], 1); // Create node layer vectors
+        node_layer[i+1] = Matrix(hidden_layer_sizes[i], 1); // Create node layer vectors
         z[i] = Matrix(hidden_layer_sizes[i], 1); //Create z layer vectors
         biases[i] = Matrix(hidden_layer_sizes[i], 1); // Create bias vectors for each node layer
     }
 
-    node_layer[num_hidden_layers] = Matrix(num_outputs, 1);
+    node_layer[num_hidden_layers+1] = Matrix(num_outputs, 1);
     z[num_hidden_layers] = Matrix(num_outputs, 1); //Create the z vector for the output vector
     biases[num_hidden_layers] = Matrix(num_outputs, 1); // Create the bias vector for the output vector
 
     // Part 2: Initializing the weight matrices
-
     weights[0] = Matrix(hidden_layer_sizes[0], num_inputs); // First weight matrix
 
     for (int i = 1; i < num_hidden_layers; i++) {
@@ -107,6 +108,8 @@ NeuralNetwork::NeuralNetwork()
     weights[num_hidden_layers] = Matrix(num_outputs, hidden_layer_sizes[num_hidden_layers - 1]); // The final weight matrix
 
     initialize_zero();
+
+    learning_rate = 0.001;
 }
 
 
@@ -126,9 +129,9 @@ void NeuralNetwork::initialize_values_random(){
 }
 
 void NeuralNetwork::initialize_zero(){
-    inputs.initialize_zero();
+    node_layer[0].initialize_zero();
     for(int i = 0; i<num_hidden_layers+1; i++){
-        node_layer[i].initialize_zero();
+        node_layer[i+1].initialize_zero();
         weights[i].initialize_zero();
         biases[i].initialize_zero();
         z[i].initialize_zero();
@@ -138,6 +141,7 @@ void NeuralNetwork::initialize_zero(){
 void NeuralNetwork::initialize_from_file(){
     ifstream inputFile; //file reader object
     inputFile.open("./NeuralNetworkParameters.csv"); //open file that contains Network Parameters TODO: make this adjustable
+    
     string line = "";
     string tempString;
     getline(inputFile,line); //ignore first line
@@ -146,9 +150,10 @@ void NeuralNetwork::initialize_from_file(){
     getline(inputFile,line); //ignore fourth line
     getline(inputFile,line); //ignore fifth line
     getline(inputFile,line); //ignore sixth line
-
+    
     float weight = 0;
     //Parse the lines (1 line per hidden layer +1)
+    try{
     for(int i = 0; i<num_hidden_layers+1; i++){
         line = "";
         getline(inputFile,line); //First set of actual data is on seventh line in the form: <number of hidden layers>, <number of outputs>
@@ -172,11 +177,13 @@ void NeuralNetwork::initialize_from_file(){
         for(int j = 0; j<biases[i].rows; j++){
             getline(inputString, tempString, ',');
             bias = stof(tempString);
-            cout<<"SETTING BIAS TO: "<<bias<<", current value is "<<biases[i].get(j,1)<<"\n";
             biases[i].set(j,0,bias);
-            cout<<"BIAS SET TO: "<<biases[i].get(j,1)<<"\n";
         }
     }
+    }catch(exception e){
+        cout<<"The neural network input file is not set up properly. Fix the file and try again"<<"\n";
+    }
+
 
 
     inputFile.close();
@@ -230,28 +237,39 @@ void NeuralNetwork::save_to_file(){
 }
 
 //Neural Network Functions for Determining Output
-int NeuralNetwork::input_NN(){
+int NeuralNetwork::input_NN(int numb){
 
 
-    //Part 1: Reset the Node Values and Input the new Value
-    inputs.print();
-    z[0] = (weights[0]*inputs) - biases[0];
-    node_layer[0] = ReLu(z[0]);
-    inputs.print();
+    //Part 1: Input the new Value
+
+    //z[0] = (weights[0]*node_layer[0]) + biases[0];
+
     //Part 2: Generate Output from the input
-    for(int i = 1; i<num_hidden_layers+1; i++){
+    for(int i = 0; i<num_hidden_layers+1; i++){
         //Next Node layer = ReLu(weight_matrix[i]*node_layer[i-1]-bias[i]);
         //(node_layer[i]) = ReLu((((this->weights)[i-1]*(this->node_layer)[i-1]) - (this->biases)[i])); //for fast compute when already trained
-        z[i] = (weights[i]*node_layer[i-1]) - biases[i];
-        node_layer[i] = ReLu(z[i]);
+        z[i] = (weights[i]*node_layer[i]) + biases[i];
+        node_layer[i+1] = ReLu(z[i]);
+        //cout<<"I == "<<i<<" 00000000000000000000000000000000000000000000000000000000\n";
     }
     
     //Return the Networks Choice: the output node with the highest value
     choice = 0;
-    for(int i = 0; i<num_outputs; i++){
-        if(node_layer[num_hidden_layers].get(i,1) > node_layer[num_hidden_layers].get(choice,1)){
+    for(int i = 1; i<num_outputs; i++){
+        if(numb == 0){
+            cout<<"Comparing "<<node_layer[num_hidden_layers+1].get(i,0)<<" > "<<node_layer[num_hidden_layers+1].get(choice,0)<<"\n";
+            node_layer[num_hidden_layers+1].print();
+        }
+        if(node_layer[num_hidden_layers+1].get(i,0) > node_layer[num_hidden_layers+1].get(choice,0)){
+            if(numb == 0){
+                cout<<"TRUE--------------------------------\n";
+            }
             choice = i;
         }
+    }
+    if(numb == 0){
+        //cout<<"Choice: "<<node_layer[num_hidden_layers].get(choice,0)<<"\n";
+        cout<<"Choice: "<<choice<<"\n";
     }
 
     return choice;
@@ -265,11 +283,11 @@ void NeuralNetwork::manual_input_NN(){
         cout<<i<<","<<1<<": ";
         cin>>intermediate;
         cout<<"Intermediate = "<<intermediate<<"\n";
-        inputs.set(i,0,intermediate);
+        node_layer[0].set(i,0,intermediate);
     }
-    std::cout<<"Matrix Input: "<<inputs.rows<<" x "<<inputs.columns<<"\n";
+    std::cout<<"Matrix Input: "<<node_layer[0].rows<<" x "<<node_layer[0].columns<<"\n";
 
-    input_NN();
+    input_NN(0);
 }
 
 
@@ -277,52 +295,96 @@ void NeuralNetwork::manual_input_NN(){
 void NeuralNetwork::train(Matrix input, Matrix output){
 
     //1) Input I/O pair
-    input_NN(); //fix this later
+    node_layer[0] = input;
+    input_NN(1); //fix this later
 
     //2) Compute del_L
-    del_prev = new Matrix(num_outputs,1);
-    *del_prev = (node_layer[num_hidden_layers]-output)%step(z[num_hidden_layers]);
+    Matrix del_prev = (node_layer[num_hidden_layers+1]-output)%step(z[num_hidden_layers]);
+
 
     //3)Use del_L to calculate the changes for the output layer weights and biases
     //3.1) Store weight matrix in intermediate variable so that when you change the weight layer you can still use the weights for the next value
-    weight_matrix_intermediate = new Matrix(weights[num_hidden_layers].rows,weights[num_hidden_layers].columns);
-    *weight_matrix_intermediate = weights[num_hidden_layers];
+    Matrix weight_matrix_intermediate = weights[num_hidden_layers];
     //3.2) Adjust weights in final layer
-    weights[num_hidden_layers] = weights[num_hidden_layers] - learning_rate*(*del_prev*node_layer[num_hidden_layers - 1]);
+    weights[num_hidden_layers] = weights[num_hidden_layers] - learning_rate*(del_prev*transpose(node_layer[num_hidden_layers]));
     //3.3) Adjust biases of the final layer
-    biases[num_hidden_layers] = biases[num_hidden_layers] - learning_rate*(*del_prev);
+    biases[num_hidden_layers] = biases[num_hidden_layers] - learning_rate*(del_prev);
 
 
     //4) Propogate the reults back to the start
-    for(int i = num_hidden_layers-1; i > 0; i--){
-
-        //4.0 Initialize del vector
-        del =  new Matrix(node_layer[i].rows,1);
+    for(int i = num_hidden_layers-1; i > -1; i--){
 
         //4.1) Store Del and then delete old del_prev
-        *del = (transpose(*del_prev)*(*weight_matrix_intermediate))%step(z[i]);
-        delete del_prev;
+        Matrix del = (transpose(weights[i+1])*del_prev)%step(z[i]);
+        //OLD == transpose((transpose(del_prev)*(weight_matrix_intermediate)))%step(z[i]);
 
         //4.2) Delete Old weight_matrix_intermediate and then get the new one
-        delete weight_matrix_intermediate;
-        weight_matrix_intermediate = new Matrix(weights[i].rows,weights[i].columns);
-        *weight_matrix_intermediate = weights[i];
+        weight_matrix_intermediate = weights[i];
 
         //4.3 Adjust weights: TODO: might be doing pointer arithmetic instead of matrix arithmetic
-        weights[i] = weights[i] - learning_rate*(*del*transpose(node_layer[i-1]));
+        weights[i] = weights[i] - learning_rate*(del*transpose(node_layer[i]));
 
         //4.4 Adjust biases
-        biases[i] = biases[i] - learning_rate*(*del);
+        biases[i] = biases[i] - learning_rate*(del);
 
         //4.5 Reset the del_prev and del values
-        del_prev = new Matrix(node_layer[i].rows,1);
         del_prev = del;
-        delete del;
-
     }
+}
 
-    delete weight_matrix_intermediate;
-    delete del_prev;
+//Train the neural network on all the training examples in a directory
+void NeuralNetwork::train_directory(int number_of_training_examples){
+    ifstream inputFile; //file reader object
+
+    for(int i = 0; i<number_of_training_examples; i++){
+        inputFile.open("./Training_Examples/"+to_string(i)+".csv"); //open file that contains training examples
+    
+        string line = "";
+        string tempString;
+        getline(inputFile,line); //ignore first line
+        getline(inputFile,line); //ignore second line
+        getline(inputFile,line); //ignore third line
+        getline(inputFile,line); //ignore fourth line
+        getline(inputFile,line); //ignore fifth line
+        getline(inputFile,line); //ignore sixth line
+        
+        float weight = 0;
+        //Parse the lines (1 line per hidden layer +1)
+        try{
+        for(int i = 0; i<num_hidden_layers+1; i++){
+            line = "";
+            getline(inputFile,line); //First set of actual data is on seventh line in the form: <number of hidden layers>, <number of outputs>
+            stringstream inputString(line); //For parsing csv
+            for(int j = 0; j<weights[i].rows; j++){
+                for(int k = 0; k<weights[i].columns; k++){
+                    getline(inputString, tempString, ',');
+                    weight = stof(tempString);
+                    weights[i].set(j,k,weight);
+                }
+            }
+        }
+
+        float bias = 0;
+
+        getline(inputFile,line); //bias explainer line
+        for(int i = 0; i<num_hidden_layers+1; i++){
+            line = "";
+            getline(inputFile,line); //First set of actual data is on seventh line in the form: <number of hidden layers>, <number of outputs>
+            stringstream inputString(line); //For parsing csv
+            for(int j = 0; j<biases[i].rows; j++){
+                getline(inputString, tempString, ',');
+                bias = stof(tempString);
+                biases[i].set(j,0,bias);
+            }
+        }
+        }catch(exception e){
+            cout<<"The neural network input file is not set up properly. Fix the file and try again"<<"\n";
+        }
+
+
+
+        inputFile.close();        
+    }
 }
 
 //start by printing just the nodes
@@ -347,7 +409,7 @@ void NeuralNetwork::print(){
     //5 = Purple d = Light Purple
     //6 = Yellow e = Light Yellow
     //7 = White f = Bright White
-    cout<<fixed<<setprecision(1);
+    cout<<fixed<<setprecision(2);
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     // you can loop k higher to see more color choices
     // pick the colorattribute k you want
@@ -356,11 +418,11 @@ void NeuralNetwork::print(){
     SetConsoleTextAttribute(hConsole, 13);
     cout<<"Biases:\n";
     for(int k = 0; k<max; k++){
-        cout<<"        ";
+        cout<<"         ";
 
         for(int j = 0; j<num_hidden_layers+1; j++){
             for(int l = 0; l<weights[j].columns; l++){
-                cout<<"     ";
+                cout<<"      ";
                 //cout<<"wwwww";
             }
             cout<<"   ";
@@ -368,7 +430,7 @@ void NeuralNetwork::print(){
                 cout<<"{"<<biases[j].get(k,0)<<"}";
             }
             else{
-                cout<<"     ";
+                cout<<"      ";
             }
             cout<<"   ";
         }
@@ -381,7 +443,7 @@ void NeuralNetwork::print(){
     for(int k = 0; k<max; k++){
         if(k<num_inputs){
             SetConsoleTextAttribute(hConsole, 12);
-            cout<<"["<<inputs.get(k,0)<<"] - ";
+            cout<<"["<<node_layer[0].get(k,0)<<"] - ";
             SetConsoleTextAttribute(hConsole, 15);
         }
         else{
@@ -403,14 +465,14 @@ void NeuralNetwork::print(){
                     cout<<"     ";
                     //cout<<"wwwww";
                 }
-                cout<<"   ";
+                cout<<"    ";
                 //cout<<"zzz";
             }
             if(k<hidden_layer_sizes[j]){
-                cout<<"["<<node_layer[j].get(k,0)<<"] - ";
+                cout<<"["<<node_layer[j+1].get(k,0)<<"] - ";
             }
             else{
-                cout<<"        ";
+                cout<<"         ";
                 //cout<<"xxxxxxxxxx";
             }
         }
@@ -422,12 +484,12 @@ void NeuralNetwork::print(){
             }
             cout<<" - ";
             SetConsoleTextAttribute(hConsole, 10);
-            cout<<"["<<node_layer[num_hidden_layers].get(k,0)<<"]";
+            cout<<"["<<node_layer[num_hidden_layers+1].get(k,0)<<"]";
             SetConsoleTextAttribute(hConsole, 15);
         }
         else{
             for(int l = 0; l<weights[num_hidden_layers].columns; l++){
-                cout<<"        ";
+                cout<<"          ";
                 //cout<<"ppppp";
             }
             cout<<"   ";
@@ -441,10 +503,10 @@ void NeuralNetwork::print(){
     //Printing out the z values
     SetConsoleTextAttribute(hConsole, 9);
     for(int k = 0; k<max; k++){
-        cout<<"        ";
+        cout<<"         ";
         for(int j = 0; j<num_hidden_layers+1; j++){
             for(int l = 0; l<weights[j].columns; l++){
-                cout<<"     ";
+                cout<<"      ";
                 //cout<<"wwwww";
             }
             cout<<"   ";
@@ -452,7 +514,7 @@ void NeuralNetwork::print(){
                 cout<<"{"<<z[j].get(k,0)<<"}";
             }
             else{
-                cout<<"     ";
+                cout<<"      ";
             }
             cout<<"   ";
         }
@@ -460,5 +522,21 @@ void NeuralNetwork::print(){
     }
     cout<<"Z values^\n";
     SetConsoleTextAttribute(hConsole, 15);
+}
+
+
+void NeuralNetwork::manually_change_learning_rate(){
+    try{
+        do{
+            cout<<"\nNew Learning Rate: ";
+            cin>>learning_rate;
+        }while(learning_rate<=0);
+    }catch(string e){
+        cout<<"ERROR: not a valid learning rate: "<<e<<"\n\n";
+    } 
+}
+
+void NeuralNetwork::change_learning_rate(float rate){
+    learning_rate = rate;
 }
 

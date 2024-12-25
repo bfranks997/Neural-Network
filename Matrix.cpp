@@ -49,6 +49,11 @@ float Matrix::get(int r, int c) const{
 Matrix::Matrix(const Matrix& a)
     : rows(a.rows), columns(a.columns)
 {
+    //Delete Old memory
+    // if (this != &a){
+    //     delete[] beginning_of_matrix_data_pointer;
+    // }
+
     // Allocate memory for the matrix data
     this->beginning_of_matrix_data_pointer = new float[rows * columns];
     this->index_pointer = beginning_of_matrix_data_pointer;
@@ -99,7 +104,7 @@ void Matrix::initialize_zero(){
 }
 
 //Print Matrix
-void Matrix::print(){
+void Matrix::print() const{
     for(int i = 0; i<rows; i++){
             for(int j = 0; j<columns; j++){
                 std::cout<<"["<<get(i,j)<<"]";
@@ -145,7 +150,10 @@ Matrix operator-(const Matrix &a, const Matrix &b){
     else{
         std::cout<<"Error: matrix dimensions do not work for - operation\n";
         std::cout<<"Matrix A: "<<a.rows<<" x "<<a.columns<<"\n";
+        a.print();
         std::cout<<"Matrix B: "<<b.rows<<" x "<<b.columns<<"\n";
+        b.print();
+        
         exit(1);
     }
 }
@@ -170,12 +178,15 @@ Matrix operator*(const Matrix &a,const Matrix &b){
     else{
         std::cout<<"Error: matrix dimensions do not work for * operation\n";
         std::cout<<"Matrix A: "<<a.rows<<" x "<<a.columns<<"\n";
+        a.print();
         std::cout<<"Matrix B: "<<b.rows<<" x "<<b.columns<<"\n";
+        b.print();
+        
         exit(1);
     }
 }
 
-Matrix operator*(const Matrix &a, int b){
+Matrix operator*(const Matrix &a, float b){
     Matrix m(a.rows, a.columns);
     for(int i = 0; i<a.rows; i++){
         for(int j = 0; j<a.columns; j++){
@@ -185,7 +196,7 @@ Matrix operator*(const Matrix &a, int b){
     return m;
 }
 
-Matrix operator*(int a, const Matrix &b){
+Matrix operator*(float a, const Matrix &b){
     Matrix m(b.rows, b.columns);
     for(int i = 0; i<b.rows; i++){
         for(int j = 0; j<b.columns; j++){
@@ -195,12 +206,17 @@ Matrix operator*(int a, const Matrix &b){
     return m;
 }
 
+//Haddamard Product
 Matrix operator%(const Matrix &a,const Matrix &b){
-    if(a.rows != b.rows && a.columns != b.columns){
-        std::cout<<"Error: matrix dimensions do not agree for the ";
+    if(a.rows != b.rows || a.columns != b.columns){
+        std::cout<<"Error: matrix dimensions do not agree for the haddamard product operator\n";
+        std::cout<<"Matrix A: "<<a.rows<<" x "<<a.columns<<"\n";
+        a.print();
+        std::cout<<"Matrix B: "<<b.rows<<" x "<<b.columns<<"\n";
+        b.print();
         exit(1);
     }
-    Matrix m(a.rows*b.rows, a.columns*b.columns);
+    Matrix m(a.rows, a.columns);
     for(int i = 0; i<a.rows; i++){
         for(int j = 0; j<b.columns; j++){
             m.set(i, j, a.get(i, j)*b.get(i, j));
