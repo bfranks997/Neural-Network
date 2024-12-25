@@ -10,6 +10,7 @@ class NeuralNetwork{
         float learning_rate;
         int * hidden_layer_sizes;
         int choice;
+        Matrix correct_output;
         Matrix inputs;
         Matrix * node_layer;
         Matrix * z;
@@ -40,6 +41,7 @@ class NeuralNetwork{
         void print();
         void manually_change_learning_rate();
         void change_learning_rate(float);
+        float cost();
         //NeuralNetwork& operator=(const NeuralNetwork &);
 
         //Friend Functions

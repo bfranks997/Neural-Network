@@ -257,19 +257,15 @@ int NeuralNetwork::input_NN(int numb){
     choice = 0;
     for(int i = 1; i<num_outputs; i++){
         if(numb == 0){
-            cout<<"Comparing "<<node_layer[num_hidden_layers+1].get(i,0)<<" > "<<node_layer[num_hidden_layers+1].get(choice,0)<<"\n";
             node_layer[num_hidden_layers+1].print();
         }
         if(node_layer[num_hidden_layers+1].get(i,0) > node_layer[num_hidden_layers+1].get(choice,0)){
-            if(numb == 0){
-                cout<<"TRUE--------------------------------\n";
-            }
             choice = i;
         }
     }
     if(numb == 0){
-        //cout<<"Choice: "<<node_layer[num_hidden_layers].get(choice,0)<<"\n";
         cout<<"Choice: "<<choice<<"\n";
+        //cout<<"Cost:   "<<cost()<<"\n";
     }
 
     return choice;
@@ -423,10 +419,10 @@ void NeuralNetwork::print(){
         for(int j = 0; j<num_hidden_layers+1; j++){
             for(int l = 0; l<weights[j].columns; l++){
                 cout<<"      ";
-                //cout<<"wwwww";
+                //cout<<"wwwwww";
             }
             cout<<"   ";
-            if(k<node_layer[j].rows){
+            if(k<node_layer[j+1].rows){
                 cout<<"{"<<biases[j].get(k,0)<<"}";
             }
             else{
@@ -447,8 +443,8 @@ void NeuralNetwork::print(){
             SetConsoleTextAttribute(hConsole, 15);
         }
         else{
-            cout<<"        ";
-            //cout<<"oooooooo";
+            cout<<"         ";
+            //cout<<"ooooooooo";
             //cout<<"[0.0] - ";
         }
         for(int j = 0; j<num_hidden_layers; j++){
@@ -462,10 +458,10 @@ void NeuralNetwork::print(){
             }
             else{
                 for(int l = 0; l<weights[j].columns; l++){
-                    cout<<"     ";
-                    //cout<<"wwwww";
+                    cout<<"      ";
+                    //cout<<"wwwwww";
                 }
-                cout<<"    ";
+                cout<<"   ";
                 //cout<<"zzz";
             }
             if(k<hidden_layer_sizes[j]){
@@ -473,7 +469,7 @@ void NeuralNetwork::print(){
             }
             else{
                 cout<<"         ";
-                //cout<<"xxxxxxxxxx";
+                //cout<<"xxxxxxxxx";
             }
         }
         if(k<num_outputs){
@@ -490,11 +486,11 @@ void NeuralNetwork::print(){
         else{
             for(int l = 0; l<weights[num_hidden_layers].columns; l++){
                 cout<<"          ";
-                //cout<<"ppppp";
+                //cout<<"pppppppppp";
             }
             cout<<"   ";
             //cout<<"bbb";
-            cout<<"  ";
+            cout<<"    ";
             //cout<<"mmmm";
         }
         cout<<"\n";
@@ -538,5 +534,13 @@ void NeuralNetwork::manually_change_learning_rate(){
 
 void NeuralNetwork::change_learning_rate(float rate){
     learning_rate = rate;
+}
+
+float NeuralNetwork::cost(){
+    float cost = 0;
+    for(int i = 0; i<num_outputs; i++){
+        cost += ((node_layer[0].get(i,0)-correct_output.get(i,0))*(node_layer[0].get(i,0)-correct_output.get(i,0)));
+    }
+    return cost;
 }
 

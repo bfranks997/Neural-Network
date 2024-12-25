@@ -28,7 +28,7 @@ int main(){
         cout<<"2 - Manually Input value\n";
         cout<<"3 - Set values from file\n";
         cout<<"4 - Save values to a file\n";
-        cout<<"5 - XOR TRAIN\n";
+        cout<<"5 - Test Neural Netowork\n";
         cout<<"6 - Change learning rate, Rate = "<<myNN.learning_rate<<"\n";
         cout<<"Enter anything else to exit\n";
         cin>>choice;
@@ -51,70 +51,105 @@ int main(){
             myNN.save_to_file();
         }
         else if(choice == 5){
-            Matrix I0(2,1);
-            I0.set(0,0,0);
-            I0.set(1,0,0);
-            Matrix I1(2,1);
-            I1.set(0,0,0);
-            I1.set(1,0,1);
-            Matrix I2(2,1);
-            I2.set(0,0,1);
-            I2.set(1,0,0);
-            Matrix I3(2,1);
-            I3.set(0,0,1);
-            I3.set(1,0,1);
+            int choice = 0;
+            while(choice == 0 || choice == 1){
+                myNN.print();
+                cout<<"Choose what you want to do\n";
+                cout<<"0 - Train XOR (2 inputs)\n";
+                cout<<"1 - Test XOR\n";
+                cout<<"Enter anything else to go back\n";
+                cin>>choice;
+                if(choice == 0){
+                    Matrix I0(2,1);
+                    I0.set(0,0,0);
+                    I0.set(1,0,0);
+                    Matrix I1(2,1);
+                    I1.set(0,0,0);
+                    I1.set(1,0,1);
+                    Matrix I2(2,1);
+                    I2.set(0,0,1);
+                    I2.set(1,0,0);
+                    Matrix I3(2,1);
+                    I3.set(0,0,1);
+                    I3.set(1,0,1);
 
-            Matrix O0(2,1);
-            O0.set(0,0,1);
-            O0.set(1,0,0);
-            Matrix O1(2,1);
-            O1.set(0,0,0);
-            O1.set(1,0,1);
-            Matrix O2(2,1);
-            O2.set(0,0,0);
-            O2.set(1,0,1);
-            Matrix O3(2,1);
-            O3.set(0,0,1);
-            O3.set(1,0,0);
+                    Matrix O0(2,1);
+                    O0.set(0,0,1);
+                    O0.set(1,0,0);
+                    Matrix O1(2,1);
+                    O1.set(0,0,0);
+                    O1.set(1,0,1);
+                    Matrix O2(2,1);
+                    O2.set(0,0,0);
+                    O2.set(1,0,1);
+                    Matrix O3(2,1);
+                    O3.set(0,0,1);
+                    O3.set(1,0,0);
 
-            myNN.print();
-            myNN.train(I0,O0);
-            myNN.train(I1,O1);
-            myNN.train(I2,O2);
-            myNN.train(I3,O3);
+                    myNN.print();
+                    myNN.train(I0,O0);
+                    myNN.train(I1,O1);
+                    myNN.train(I2,O2);
+                    myNN.train(I3,O3);
 
-            for(int i = 0; i<10000; i++){
-                myNN.train(I0,O0);
-                myNN.train(I1,O1);
-                myNN.train(I2,O2);
-                myNN.train(I3,O3);
+                    for(int i = 0; i<10000; i++){
+                        myNN.train(I0,O0);
+                        myNN.train(I1,O1);
+                        myNN.train(I2,O2);
+                        myNN.train(I3,O3);
+                    }
+                    myNN.print();
+                    cout<<"Finished Training.\n";
+                }
+                else if(choice == 1){
+                    Matrix I0(2,1);
+                    I0.set(0,0,0);
+                    I0.set(1,0,0);
+                    Matrix I1(2,1);
+                    I1.set(0,0,0);
+                    I1.set(1,0,1);
+                    Matrix I2(2,1);
+                    I2.set(0,0,1);
+                    I2.set(1,0,0);
+                    Matrix I3(2,1);
+                    I3.set(0,0,1);
+                    I3.set(1,0,1);
+
+                    Matrix O0(2,1);
+                    O0.set(0,0,1);
+                    O0.set(1,0,0);
+                    Matrix O1(2,1);
+                    O1.set(0,0,0);
+                    O1.set(1,0,1);
+                    Matrix O2(2,1);
+                    O2.set(0,0,0);
+                    O2.set(1,0,1);
+                    Matrix O3(2,1);
+                    O3.set(0,0,1);
+                    O3.set(1,0,0);
+
+                    cout<<"Inputting [0,0]\n";
+                    myNN.node_layer[0] = I0;
+                    myNN.input_NN(0);
+
+
+                    cout<<"Inputting [0,1]\n";
+                    myNN.node_layer[0] = I1;
+                    myNN.input_NN(0);
+
+
+                    cout<<"Inputting [1,0]\n";
+                    myNN.node_layer[0] = I2;
+                    myNN.input_NN(0);
+
+
+                    cout<<"Inputting [1,1]\n";
+                    myNN.node_layer[0] = I3;
+                    myNN.input_NN(0);
+                }
             }
-            myNN.print();
-            cout<<"Finished Training: now testing inputs...\n";
 
-            cout<<"Inputting [0,0]\n";
-            myNN.node_layer[0] = I0;
-            myNN.input_NN(0);
 
-            myNN.print();
-
-            cout<<"Inputting [0,1]\n";
-            myNN.node_layer[0] = I1;
-            myNN.input_NN(0);
-
-            myNN.print();
-
-            cout<<"Inputting [1,0]\n";
-            myNN.node_layer[0] = I2;
-            myNN.input_NN(0);
-
-            myNN.print();
-
-            cout<<"Inputting [1,1]\n";
-            myNN.node_layer[0] = I3;
-            myNN.input_NN(0);
-
-            myNN.print();
         }
         else if(choice == 6){
             myNN.manually_change_learning_rate();
