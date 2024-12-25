@@ -41,7 +41,7 @@ class NeuralNetwork{
         void print();
         void manually_change_learning_rate();
         void change_learning_rate(float);
-        float cost();
+        //float cost();
         //NeuralNetwork& operator=(const NeuralNetwork &);
 
         //Friend Functions

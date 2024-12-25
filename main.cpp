@@ -17,6 +17,9 @@ int main(){
     for(int i = 0; i<myNN.num_hidden_layers; i++){
         cout<<"Size of layer "<<i<<": "<<myNN.node_layer[i+1].rows<<" x " <<myNN.node_layer[i+1].columns<<endl;
     }
+    for(int i = 0; i<myNN.num_hidden_layers+1; i++){
+        cout<<"Size of weight matrix "<<i<<": "<<myNN.weights[i].rows<<" x " <<myNN.weights[i].columns<<endl;
+    }
     cout<<"Learning rate: "<<myNN.learning_rate<<endl;
 
     int choice = 0;
