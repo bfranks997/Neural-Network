@@ -280,26 +280,16 @@ void NeuralNetwork::manual_input_NN(){
 void NeuralNetwork::train(){
 
     input_NN(1); //fix this later
+    
+
+    Matrix del_prev;
+    Matrix weights_prev;
+
     //2) Compute del_L
-    Matrix del_prev = (node_layer[num_hidden_layers+1]-correct_output)%step(z[num_hidden_layers+1]);
-
-    //3)Use del_L to calculate the changes for the output layer weights and biases
-    //3.1) Store weight matrix in intermediate variable so that when you change the weight layer you can still use the weights for the next value
-    Matrix weights_prev = weights[num_hidden_layers];
-    //3.2) Adjust weights in final layer
-    weights[num_hidden_layers] = weights[num_hidden_layers] - learning_rate*(del_prev*transpose(node_layer[num_hidden_layers]));
-    //3.3) Adjust biases of the final layer
-    biases[num_hidden_layers] = biases[num_hidden_layers] - learning_rate*(del_prev);
-
-    del_prev =(transpose(weights_prev)*del_prev)%step(z[num_hidden_layers]); //FIX THIS
-
+    Matrix del = (node_layer[num_hidden_layers+1]-correct_output)%step(z[num_hidden_layers+1]);
 
     //4) Propogate the reults back to the start
-    for(int i = num_hidden_layers-1; i > -1; i--){
-
-        //4.1) Store Del and then delete old del_prev
-        Matrix del = (transpose(weights_prev)*del_prev)%step(z[i]);
-        //OLD == transpose((transpose(del_prev)*(weight_matrix_intermediate)))%step(z[i]);
+    for(int i = num_hidden_layers; i >= 0; i--){
 
         //4.2) Delete Old weight_matrix_intermediate and then get the new one
         weights_prev = weights[i];
@@ -310,8 +300,8 @@ void NeuralNetwork::train(){
         //4.4 Adjust biases
         biases[i] = biases[i] - learning_rate*(del);
 
-        //4.5 Reset the del_prev and del values
-        del_prev = del;
+        //4.1) Store Del and then delete old del_prev
+        del = (transpose(weights_prev)*del)%step(z[i]);
     }
 }
 
