@@ -17,11 +17,6 @@ class NeuralNetwork{
         Matrix * biases;
         Matrix * weights;
 
-        // Matrix * weight_matrix_intermediate;
-        // Matrix * del_prev;
-        // Matrix * del;
-
-
         //Constructors
         NeuralNetwork();
         NeuralNetwork(int, int, int, int*);
@@ -36,11 +31,13 @@ class NeuralNetwork{
         void save_to_file();
         int input_NN(int i);
         void manual_input_NN();
-        void train(Matrix,Matrix);
+        void train(Matrix,Matrix); //Train where you need to input the I/O as parameters
+        void train(); //Train with I/O already entered in
         void train_directory(int);
         void print();
         void manually_change_learning_rate();
         void change_learning_rate(float);
+        void print_line(int, int);
         //float cost();
         //NeuralNetwork& operator=(const NeuralNetwork &);
 

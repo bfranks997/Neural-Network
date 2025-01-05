@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include "Matrix.h"
 #include "NeuralNetwork.h"
 
@@ -17,9 +18,6 @@ int main(){
     for(int i = 0; i<myNN.num_hidden_layers; i++){
         cout<<"Size of layer "<<i<<": "<<myNN.node_layer[i+1].rows<<" x " <<myNN.node_layer[i+1].columns<<endl;
     }
-    for(int i = 0; i<myNN.num_hidden_layers+1; i++){
-        cout<<"Size of weight matrix "<<i<<": "<<myNN.weights[i].rows<<" x " <<myNN.weights[i].columns<<endl;
-    }
     cout<<"Learning rate: "<<myNN.learning_rate<<endl;
 
     int choice = 0;
@@ -32,7 +30,7 @@ int main(){
         cout<<"3 - Set values from file\n";
         cout<<"4 - Save values to a file\n";
         cout<<"5 - Test Neural Netowork\n";
-        cout<<"6 - Change learning rate, Rate = "<<myNN.learning_rate<<"\n";
+        cout<<"6 - Change learning rate, current rate = "<<myNN.learning_rate<<"\n";
         cout<<"Enter anything else to exit\n";
         cin>>choice;
         if(choice == 0){
@@ -55,11 +53,12 @@ int main(){
         }
         else if(choice == 5){
             int choice = 0;
-            while(choice == 0 || choice == 1){
+            while(choice == 0 || choice == 1 || choice == 2){
                 myNN.print();
                 cout<<"Choose what you want to do\n";
                 cout<<"0 - Train XOR (2 inputs)\n";
                 cout<<"1 - Test XOR\n";
+                cout<<"2 - Train from examples in a folder\n";
                 cout<<"Enter anything else to go back\n";
                 cin>>choice;
                 if(choice == 0){
@@ -149,6 +148,22 @@ int main(){
                     cout<<"Inputting [1,1]\n";
                     myNN.node_layer[0] = I3;
                     myNN.input_NN(0);
+                }
+                else if(choice == 2){
+                    cout<<"Please input files into the Training_Examples folder and give them each a number.\n";
+                    cout<<"For example 1.csv 2.csv ... 89.csv.\n";
+                    cout<<"You may have to edit the \"train_directory\" function in order to  fit your files format.\n";
+                    cout<<"-----------------------------------------------------------------------------------------\n";
+                    cout<<"How many files are in the Training_Examples folder?\n";
+                    int num_files, num_iterations;
+                    cout<<"Number: ";
+                    cin>>num_files;
+                    cout<<"How many times do you want to loop through the training examples in this folder?\n";
+                    cin>>num_iterations;
+                    cout<<"\n\nTraining neural network ...\n";
+                    for(int i = 0; i<num_iterations; i++){
+                        myNN.train_directory(num_files);
+                    }
                 }
             }
 
