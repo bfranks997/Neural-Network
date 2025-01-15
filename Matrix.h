@@ -1,5 +1,6 @@
 #pragma once
 
+
 class Matrix{
     public:
         int rows;
@@ -9,6 +10,7 @@ class Matrix{
 
         //Constructors
         Matrix();
+        Matrix(int,int,std::string);
         Matrix(int, int);
         Matrix(const Matrix &); //copy constructor
 

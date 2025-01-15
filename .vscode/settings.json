@@ -52,6 +52,9 @@
         "xlocbuf": "cpp",
         "xtr1common": "cpp",
         "iomanip": "cpp",
-        "xstddef": "cpp"
+        "xstddef": "cpp",
+        "random": "cpp",
+        "algorithm": "cpp",
+        "vector": "cpp"
     }
 }

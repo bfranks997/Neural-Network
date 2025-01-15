@@ -1,13 +1,18 @@
 #include "Matrix.h"
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
+//#include <cstdlib>
+#include <random>
+#include <string>
 
 //------------
 //Constructors
 //------------
 Matrix::Matrix()
     : rows(0), columns(0), beginning_of_matrix_data_pointer(nullptr), index_pointer(nullptr){}
+
+Matrix::Matrix(int rows, int columns, std::string filepath){
+
+}
 
 Matrix::Matrix(int rows, int columns)
     : rows(rows), columns(columns), beginning_of_matrix_data_pointer(new float[rows * columns]), index_pointer(nullptr){}
@@ -86,10 +91,17 @@ void Matrix::operator=(const Matrix& a)
 
 //initialize random
 void Matrix::initialize_random(){
-    srand(time(0));
+    std::random_device rd;
+
+    // Use the Mersenne Twister random number generator
+    std::mt19937 gen(rd());
+
+    // Define the range for random numbers
+    std::uniform_int_distribution<> distr(1, 101);
+    
     for(int i = 0; i<rows; i++){
             for(int j = 0; j<columns; j++){
-                set(i, j, float(rand()%101)/100);
+                set(i, j, float(distr(gen)%101)/float(100));
             }
     }   
 }

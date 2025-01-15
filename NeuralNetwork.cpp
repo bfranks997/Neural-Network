@@ -1,14 +1,9 @@
 //TODO (new)
-//1) Verify algorithm is correct
-//3) Verify the bounds in for loops are correct
-//4) Figure out if the dynamic allocation of memory is correct
-//5) Do a simple train and test with the simplest network possible
-//6) LEARN TO DEBUG SO YOU CAN FIX THE HIDDEN LAYER SIZES CHANGING
-//7) See if num_outputs is the samne as the number of nodes in the last layer aka outpouts = last node layer
-//8) Make it so that the NNparameters CSV has to be filled out correctly else itll throw some kind of error
-//9) Fix the inpout NN function
-//10) Make a training function which trains each training example in a dataset
-//11) Go through all set and gets and make sure all are 0 based and not 1 based
+//1) See if num_outputs is the samne as the number of nodes in the last layer aka outpouts = last node layer
+//2) Make it so that the NNparameters CSV has to be filled out correctly else itll throw some kind of error
+//3) Fix the inpout NN function
+//4) Make a training function which trains each training example in a dataset
+//5) Go through all set and gets and make sure all are 0 based and not 1 based
 
 #include "NeuralNetwork.h"
 #include "Matrix.h"
@@ -237,8 +232,6 @@ int NeuralNetwork::input_NN(int numb){
 
     //Part 2: Generate Output from the input
     for(int i = 0; i<num_hidden_layers+1; i++){
-        //Next Node layer = ReLu(weight_matrix[i]*node_layer[i-1]-bias[i]);
-        //(node_layer[i]) = ReLu((((this->weights)[i-1]*(this->node_layer)[i-1]) - (this->biases)[i])); //for fast compute when already trained
         z[i] = (weights[i]*node_layer[i]) + biases[i];
         node_layer[i+1] = ReLu(z[i]);
         //cout<<"I == "<<i<<" 00000000000000000000000000000000000000000000000000000000\n";
@@ -286,7 +279,7 @@ void NeuralNetwork::train(){
     Matrix weights_prev;
 
     //2) Compute del_L
-    Matrix del = (node_layer[num_hidden_layers+1]-correct_output)%step(z[num_hidden_layers+1]);
+    Matrix del = clipGradients((node_layer[num_hidden_layers+1]-correct_output)%step(z[num_hidden_layers]),max_norm);
 
     //4) Propogate the reults back to the start
     for(int i = num_hidden_layers; i >= 0; i--){
@@ -301,7 +294,9 @@ void NeuralNetwork::train(){
         biases[i] = biases[i] - learning_rate*(del);
 
         //4.1) Store Del and then delete old del_prev
-        del = (transpose(weights_prev)*del)%step(z[i]);
+        if(i>0){
+            del = clipGradients(((transpose(weights_prev)*del)%step(z[i-1])),max_norm);
+        }
     }
 }
 
@@ -349,6 +344,16 @@ void NeuralNetwork::train_directory(int number_of_training_examples){
         inputFile.close();
 
         train();   
+    }
+}
+
+void NeuralNetwork::train_dataset(int num_epochs, int number_of_training_examples){
+    for (int epoch = 0; epoch < num_epochs; ++epoch) {
+        for (int i = 0; i < number_of_training_examples; ++i) {
+            // Load example i and train
+            train(i);
+        }
+        cout << "Epoch " << epoch + 1 << " completed." << std::endl;
     }
 }
 
@@ -557,4 +562,17 @@ void NeuralNetwork::print_line(int p, int q){
         }
     }
     cout<<"\n";
+}
+
+Matrix clipGradients(const Matrix& m, float maxNorm) {
+    Matrix result = m;
+    for (int i = 0; i < m.rows; i++) {
+        for (int j = 0; j < m.columns; j++) {
+            float value = m.get(i, j);
+            if (value > maxNorm) value = maxNorm;
+            if (value < -maxNorm) value = -maxNorm;
+            result.set(i, j, value);
+        }
+    }
+    return result;
 }

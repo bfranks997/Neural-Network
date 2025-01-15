@@ -10,6 +10,7 @@ class NeuralNetwork{
         float learning_rate;
         int * hidden_layer_sizes;
         int choice;
+        float max_norm = 20;
         Matrix correct_output;
         Matrix inputs;
         Matrix * node_layer;
@@ -34,10 +35,12 @@ class NeuralNetwork{
         void train(Matrix,Matrix); //Train where you need to input the I/O as parameters
         void train(); //Train with I/O already entered in
         void train_directory(int);
+        void train_dataset(int, int);
         void print();
         void manually_change_learning_rate();
         void change_learning_rate(float);
         void print_line(int, int);
+        Matrix clipGradients(const Matrix&, float);
         //float cost();
         //NeuralNetwork& operator=(const NeuralNetwork &);
 
