@@ -1,5 +1,5 @@
 #pragma once
-
+#include <string>
 
 class Matrix{
     public:
@@ -10,7 +10,7 @@ class Matrix{
 
         //Constructors
         Matrix();
-        Matrix(int,int,std::string);
+        Matrix(int,int, std::string);
         Matrix(int, int);
         Matrix(const Matrix &); //copy constructor
 

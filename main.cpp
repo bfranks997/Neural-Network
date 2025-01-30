@@ -8,7 +8,7 @@ using namespace std;
 
 int main(){
     cout<<"--------------------------------------------------------------\n";
-    cout<<"Welcome to the Neural Network Program by Bradley Franks V0.0.3\n";
+    cout<<"Welcome to the Neural Network Program by Bradley Franks V0.0.4\n";
     cout<<"--------------------------------------------------------------\n";
 
     NeuralNetwork myNN;

@@ -147,6 +147,7 @@ void NeuralNetwork::initialize_from_file(){
         for(int j = 0; j<weights[i].rows; j++){
             for(int k = 0; k<weights[i].columns; k++){
                 getline(inputString, tempString, ',');
+                cout<<"HERE1\n";
                 weight = stof(tempString);
                 weights[i].set(j,k,weight);
             }
@@ -162,6 +163,7 @@ void NeuralNetwork::initialize_from_file(){
         stringstream inputString(line); //For parsing csv
         for(int j = 0; j<biases[i].rows; j++){
             getline(inputString, tempString, ',');
+            cout<<"HERE2\n";
             bias = stof(tempString);
             biases[i].set(j,0,bias);
         }
@@ -329,6 +331,7 @@ void NeuralNetwork::train_directory(int number_of_training_examples){
         //Read inputs from file
         for(int i = 0; i<num_inputs; i++){
             getline(inputString, tempString, ',');
+            cout<<"HERE3\n";
             node_layer[i].set(i,0,stof(tempString));
         }
 
@@ -338,6 +341,7 @@ void NeuralNetwork::train_directory(int number_of_training_examples){
         //Read outputs from file into output vector
         for(int i = 0; i<num_outputs; i++){
             getline(inputString2, tempString, ',');
+            cout<<"HERE4\n";
             correct_output.set(i,0,stof(tempString));
         }
 
@@ -348,10 +352,24 @@ void NeuralNetwork::train_directory(int number_of_training_examples){
 }
 
 void NeuralNetwork::train_dataset(int num_epochs, int number_of_training_examples){
+    
+    int types_of_data = 10;
+    int file_rows = 28;
+    int file_columns = 28;
+    string filename;
+
     for (int epoch = 0; epoch < num_epochs; ++epoch) {
+        learning_rate *= 0.99;
         for (int i = 0; i < number_of_training_examples; ++i) {
             // Load example i and train
-            train(i);
+            for(int j = 0; j < types_of_data; j++){
+                filename = "./Training_Examples/mnist/" + to_string(j) + "/" + to_string(j) + "_" + to_string(i) + ".csv";
+                Matrix standard_basis_vector = Matrix(10,1);
+                standard_basis_vector.initialize_zero();
+                standard_basis_vector.set(j,1,1);
+                train(Matrix(file_rows, file_columns, filename), standard_basis_vector);
+                this->node_layer[num_hidden_layers+1].print();
+            }
         }
         cout << "Epoch " << epoch + 1 << " completed." << std::endl;
     }
@@ -564,7 +582,7 @@ void NeuralNetwork::print_line(int p, int q){
     cout<<"\n";
 }
 
-Matrix clipGradients(const Matrix& m, float maxNorm) {
+Matrix NeuralNetwork::clipGradients(const Matrix& m, float maxNorm) {
     Matrix result = m;
     for (int i = 0; i < m.rows; i++) {
         for (int j = 0; j < m.columns; j++) {

@@ -1,8 +1,12 @@
 #include "Matrix.h"
 #include <iostream>
 //#include <cstdlib>
+#include <fstream>
+#include <sstream>
 #include <random>
 #include <string>
+
+using namespace std;
 
 //------------
 //Constructors
@@ -10,8 +14,36 @@
 Matrix::Matrix()
     : rows(0), columns(0), beginning_of_matrix_data_pointer(nullptr), index_pointer(nullptr){}
 
-Matrix::Matrix(int rows, int columns, std::string filepath){
+//READ MATRIX IN FROM CSV of known size
+Matrix::Matrix(int rows, int columns, string filepath) 
+    : rows(rows), columns(columns), beginning_of_matrix_data_pointer(new float[rows * columns]), index_pointer(nullptr){
 
+    ifstream inputFile; //file reader object
+    inputFile.open(filepath); //open file that contains Network Parameters TODO: make this adjustable
+    
+    string line = "";
+    string tempString;
+    
+    float weight = 0;
+    //Parse the lines (1 line per hidden layer +1)
+
+    line = "";
+    for(int j = 0; j<rows; j++){
+        getline(inputFile,line); //First set of actual data is on seventh line in the form: <number of hidden layers>, <number of outputs>
+        stringstream inputString(line); //For parsing csv
+        for(int k = 0; k<columns; k++){
+            getline(inputString, tempString, ',');
+            cout<<tempString<<" ";
+            if(k==columns-1){
+                cout<<"\n";
+            }
+            weight = stof(tempString);
+            this->set(j*columns+k,1,weight); //THIS IS FOR THE MNIST DATASET
+            //this->set(j,k,weight);
+        }
+    }
+     //TODO: finish this --> Note the code above does not necessarily work
+    inputFile.close();
 }
 
 Matrix::Matrix(int rows, int columns)
